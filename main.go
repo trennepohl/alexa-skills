@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/labstack/echo"
-	alexaHTTPRouter "github.com/thiagotrennepohl/alexa-containers/router"
-	"github.com/thiagotrennepohl/alexa-containers/service"
-	"github.com/thiagotrennepohl/alexa-containers/service/saudation"
+	alexaHTTPRouter "github.com/thiagotrennepohl/alexa-skills/router"
+	"github.com/thiagotrennepohl/alexa-skills/service"
+	"github.com/thiagotrennepohl/alexa-skills/service/saudation"
 )
 
 func main() {
