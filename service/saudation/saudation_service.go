@@ -1,8 +1,8 @@
 package saudation
 
 import (
-	"github.com/thiagotrennepohl/alexa-containers/models"
-	"github.com/thiagotrennepohl/alexa-containers/service"
+	"github.com/thiagotrennepohl/alexa-skills/models"
+	"github.com/thiagotrennepohl/alexa-skills/service"
 )
 
 type saudation struct {

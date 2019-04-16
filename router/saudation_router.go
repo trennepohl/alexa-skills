@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
-	"github.com/thiagotrennepohl/alexa-containers/models"
-	"github.com/thiagotrennepohl/alexa-containers/service"
+	"github.com/thiagotrennepohl/alexa-skills/models"
+	"github.com/thiagotrennepohl/alexa-skills/service"
 )
 
 type alexaRouter struct {
