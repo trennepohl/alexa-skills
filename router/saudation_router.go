@@ -32,7 +32,7 @@ func (a *alexaRouter) processIncoming(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, models.JSON{"message": "Intent not found"})
 	}
 
-	alexaResponse, err := a.intents[payload.Request.Intent.Name].Response()
+	alexaResponse, err := a.intents[payload.Request.Intent.Name].Response(*payload)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, models.JSON{"message": err.Error()})
 	}
