@@ -53,3 +53,15 @@ type AlexaResponse struct {
 		} `json:"outputSpeech"`
 	} `json:"response"`
 }
+
+func (a *AlexaResponse) SetPlainTextErrorResponse(errorMessage string) {
+	a.Response.OutputSpeech.Text = errorMessage
+	a.Response.OutputSpeech.Type = "PlainText"
+	a.ShouldEndSession = true
+}
+
+func (a *AlexaResponse) SetPlainTextResponse(message string) {
+	a.Response.OutputSpeech.Text = message
+	a.Response.OutputSpeech.Type = "PlainText"
+	a.ShouldEndSession = true
+}

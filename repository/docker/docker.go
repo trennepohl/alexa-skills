@@ -3,8 +3,6 @@ package docker
 import (
 	"strings"
 
-	"fmt"
-
 	gdocker "github.com/fsouza/go-dockerclient"
 	"github.com/thiagotrennepohl/alexa-skills/repository"
 	"gitlab.agilepromoter.com/iat/apoc/models"
@@ -80,10 +78,18 @@ func (docker *dockerRepository) RestartContainer(containerName string) error {
 // 	return err
 // }
 
-func (docker *dockerRepository) ListContainers(conn gdocker.Client) (err error) {
-	allContainersRunning, err := conn.ListContainers(gdocker.ListContainersOptions{All: true})
-	fmt.Println(allContainersRunning)
-	return nil
+func (docker *dockerRepository) ListContainers() ([]string, error) {
+	containerNames := []string{}
+	runningContainers, err := docker.client.ListContainers(gdocker.ListContainersOptions{All: true})
+	if err != nil {
+		return containerNames, nil
+	}
+	for _, container := range runningContainers {
+		for _, name := range container.Names {
+			containerNames = append(containerNames, docker.removeSlashes(name))
+		}
+	}
+	return containerNames, nil
 }
 
 func (docker *dockerRepository) StartContainer(conn gdocker.Client, containerID string) error {
@@ -106,7 +112,6 @@ func (docker *dockerRepository) GetContainerID(containerName string) (string, er
 	if err != nil {
 		return "", &models.ErrCannotListContainers{err.Error()}
 	}
-	fmt.Println(containers)
 
 	if ok := docker.isContainerListEmpty(containers); ok {
 		return "", &models.ErrNoContainersFound{Message: containerNotFound}
