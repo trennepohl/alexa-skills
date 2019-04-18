@@ -10,29 +10,65 @@ import (
 
 type dockerService struct {
 	dockerRepo repository.DockerRepository
+	skills     map[string]func(string) (models.AlexaResponse, error)
 }
 
 func NewDockerService(dockerRepository repository.DockerRepository) service.Intent {
-	return &dockerService{
+	dockerSvc := &dockerService{
 		dockerRepo: dockerRepository,
 	}
+
+	dockerSvc.skills = map[string]func(string) (models.AlexaResponse, error){
+		"restartContainer": dockerSvc.restartContainer,
+	}
+
+	err := dockerSvc.dockerRepo.Connect("localhost:2376")
+	if err != nil {
+		panic(err)
+	}
+
+	return dockerSvc
 }
 
 func (d *dockerService) Response(alexaRequest models.AlexaIncomingPayload) (models.AlexaResponse, error) {
-	d.dockerRepo.Connect("localhost:2376")
+
 	alexaResponse := models.AlexaResponse{}
-	// fmt.Printf("%+v\n", alexaRequest.Request.Intent.Slots)
-	// alexaRequest.Request.Intent.Slots["clientname"].(map[string]interface{})["value"].(string)
+	intentName := alexaRequest.Request.Intent.Name
 	containerName := alexaRequest.Request.Intent.Slots["container_name"].(map[string]interface{})["value"].(string)
-	fmt.Println(containerName)
-	err := d.dockerRepo.RestartContainer(alexaRequest.Request.Intent.Slots["container_name"].(map[string]interface{})["value"].(string))
-	if err != nil {
-		alexaResponse.Response.OutputSpeech.Text = "Failed"
-		alexaResponse.Response.OutputSpeech.Type = "PlainText"
-		alexaResponse.ShouldEndSession = true
+
+	if _, ok := d.skills[intentName]; !ok {
+		fmt.Println("deu ruim aqui")
+		alexaResponse.SetPlainTextErrorResponse(fmt.Sprintf("Sorry I couldn't find an action called %s", intentName))
+		return alexaResponse, fmt.Errorf("Skill %s not found", intentName)
 	}
-	alexaResponse.Response.OutputSpeech.Text = "Restarting banana container"
-	alexaResponse.Response.OutputSpeech.Type = "PlainText"
-	alexaResponse.ShouldEndSession = true
-	return alexaResponse, nil
+
+	return d.skills[alexaRequest.Request.Intent.Name](containerName)
 }
+
+func (d *dockerService) restartContainer(containerName string) (models.AlexaResponse, error) {
+	alexaResponse := models.AlexaResponse{}
+	err := d.dockerRepo.RestartContainer(containerName)
+	if err != nil {
+		fmt.Println(err.Error())
+		alexaResponse.SetPlainTextErrorResponse(err.Error())
+		return alexaResponse, err
+	}
+
+	alexaResponse.SetPlainTextResponse(fmt.Sprintf("%s has been restarted successfully", containerName))
+
+	return alexaResponse, err
+}
+
+// func (d *dockerService) listContainers(containerName string) (models.AlexaResponse, error) {
+// 	alexaResponse := models.AlexaResponse{}
+// 	err := d.dockerRepo.RestartContainer(containerName)
+// 	if err != nil {
+// 		fmt.Println(err.Error())
+// 		alexaResponse.SetPlainTextErrorResponse(err.Error())
+// 		return alexaResponse, err
+// 	}
+
+// 	alexaResponse.SetPlainTextResponse(fmt.Sprintf("%s has been restarted successfully", containerName))
+
+// 	return alexaResponse, err
+// }

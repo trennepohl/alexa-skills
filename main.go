@@ -22,9 +22,9 @@ func main() {
 	farewellService := farewell.NewFarewellService()
 
 	intents = map[string]service.Intent{
-		"saudation": saudationService,
-		"farewell":  farewellService,
-		"docker":    dockerService,
+		"saudation":        saudationService,
+		"farewell":         farewellService,
+		"restartContainer": dockerService,
 	}
 
 	alexaHTTPRouter.NewSaudationRouter(router, intents)
