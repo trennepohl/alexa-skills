@@ -1,9 +1,8 @@
 package docker
 
 import (
-	"strings"
-
 	"fmt"
+	"strings"
 
 	gdocker "github.com/fsouza/go-dockerclient"
 	"github.com/thiagotrennepohl/alexa-skills/repository"
@@ -80,14 +79,39 @@ func (docker *dockerRepository) RestartContainer(containerName string) error {
 // 	return err
 // }
 
-func (docker *dockerRepository) ListContainers(conn gdocker.Client) (err error) {
-	allContainersRunning, err := conn.ListContainers(gdocker.ListContainersOptions{All: true})
-	fmt.Println(allContainersRunning)
+func (docker *dockerRepository) ListContainers() ([]string, error) {
+	containerNames := []string{}
+	runningContainers, err := docker.client.ListContainers(gdocker.ListContainersOptions{All: true})
+	if err != nil {
+		return containerNames, nil
+	}
+	for _, container := range runningContainers {
+		for _, name := range container.Names {
+			containerNames = append(containerNames, docker.removeSlashes(name))
+		}
+	}
+	return containerNames, nil
+}
+
+func (docker *dockerRepository) StartContainer(containerName string) error {
+	containerID, err := docker.GetContainerID(containerName)
+	if err != nil {
+		return err
+	}
+	err = docker.client.StartContainer(containerID, nil)
+	if err != nil {
+		return &models.ErrCannotStartContainer{cannotStartContainer + err.Error()}
+	}
+	fmt.Println("foi")
 	return nil
 }
 
-func (docker *dockerRepository) StartContainer(conn gdocker.Client, containerID string) error {
-	err := conn.StartContainer(containerID, nil)
+func (docker *dockerRepository) StopContainer(containerName string) error {
+	containerID, err := docker.GetContainerID(containerName)
+	if err != nil {
+		return err
+	}
+	err = docker.client.StopContainer(containerID, 10)
 	if err != nil {
 		return &models.ErrCannotStartContainer{cannotStartContainer + err.Error()}
 	}
@@ -106,7 +130,6 @@ func (docker *dockerRepository) GetContainerID(containerName string) (string, er
 	if err != nil {
 		return "", &models.ErrCannotListContainers{err.Error()}
 	}
-	fmt.Println(containers)
 
 	if ok := docker.isContainerListEmpty(containers); ok {
 		return "", &models.ErrNoContainersFound{Message: containerNotFound}

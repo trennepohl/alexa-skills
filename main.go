@@ -25,6 +25,9 @@ func main() {
 		"saudation":        saudationService,
 		"farewell":         farewellService,
 		"restartContainer": dockerService,
+		"listContainers":   dockerService,
+		"stopContainer":    dockerService,
+		"startContainer":   dockerService,
 	}
 
 	alexaHTTPRouter.NewSaudationRouter(router, intents)

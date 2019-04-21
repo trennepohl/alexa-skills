@@ -32,6 +32,10 @@ type AlexaIncomingPayload struct {
 	}
 }
 
+type Containers struct {
+	ContainerNames []string
+}
+
 //AlexaSkillContext keeps authorization tokens and the applicationID, this structure is used when sending a progressive request
 type AlexaSkillContext struct {
 	Application struct {
@@ -63,5 +67,11 @@ func (a *AlexaResponse) SetPlainTextErrorResponse(errorMessage string) {
 func (a *AlexaResponse) SetPlainTextResponse(message string) {
 	a.Response.OutputSpeech.Text = message
 	a.Response.OutputSpeech.Type = "PlainText"
+	a.ShouldEndSession = true
+}
+
+func (a *AlexaResponse) SetSSMLResponse(message string) {
+	a.Response.OutputSpeech.SSML = message
+	a.Response.OutputSpeech.Type = "SSML"
 	a.ShouldEndSession = true
 }

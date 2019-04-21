@@ -1,0 +1,6 @@
+<speak>
+<p> Here's the list of all running containers </p>
+{{ range $bla,$container := .ContainerNames }}
+  <p> {{ $container }} </p>
+{{end}}
+</speak>
