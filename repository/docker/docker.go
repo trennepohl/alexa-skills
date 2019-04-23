@@ -6,7 +6,6 @@ import (
 
 	gdocker "github.com/fsouza/go-dockerclient"
 	"github.com/thiagotrennepohl/alexa-skills/repository"
-	"gitlab.agilepromoter.com/iat/apoc/models"
 )
 
 type dockerRepository struct {
@@ -25,7 +24,7 @@ func (docker *dockerRepository) OpenTLSDockerConnection(APIAddress string, CACer
 		CACertPath,
 	)
 	if err != nil {
-		return *client, &models.ErrCannotOpenDockerConnection{Message: err.Error()}
+		return *client, err
 	}
 
 	client.TLSConfig.InsecureSkipVerify = true
@@ -42,7 +41,7 @@ func (docker *dockerRepository) OpenDockerConnection(APIAddress string) error {
 		"tcp://" + APIAddress,
 	)
 	if err != nil {
-		return &models.ErrCannotOpenDockerConnection{Message: err.Error()}
+		return err
 	}
 
 	docker.client = client
@@ -52,12 +51,12 @@ func (docker *dockerRepository) OpenDockerConnection(APIAddress string) error {
 func (docker *dockerRepository) RestartContainer(containerName string) error {
 	containerID, err := docker.GetContainerID(containerName)
 	if err != nil {
-		return &models.ErrCannotRestartClient{Message: err.Error()}
+		return err
 	}
 
 	err = docker.client.RestartContainer(containerID, dockerRestartTimeout)
 	if err != nil {
-		return &models.ErrCannotRestartClient{Message: err.Error()}
+		return err
 	}
 
 	return err
@@ -100,7 +99,7 @@ func (docker *dockerRepository) StartContainer(containerName string) error {
 	}
 	err = docker.client.StartContainer(containerID, nil)
 	if err != nil {
-		return &models.ErrCannotStartContainer{cannotStartContainer + err.Error()}
+		return err
 	}
 	fmt.Println("foi")
 	return nil
@@ -113,7 +112,7 @@ func (docker *dockerRepository) StopContainer(containerName string) error {
 	}
 	err = docker.client.StopContainer(containerID, 10)
 	if err != nil {
-		return &models.ErrCannotStartContainer{cannotStartContainer + err.Error()}
+		return err
 	}
 	return nil
 }
@@ -128,11 +127,11 @@ func (docker *dockerRepository) GetContainerID(containerName string) (string, er
 
 	containers, err := docker.client.ListContainers(listOptions)
 	if err != nil {
-		return "", &models.ErrCannotListContainers{err.Error()}
+		return "", err
 	}
 
 	if ok := docker.isContainerListEmpty(containers); ok {
-		return "", &models.ErrNoContainersFound{Message: containerNotFound}
+		return "", err
 	}
 
 	//A container can habe multiple names, also the filters can return multiple containers
