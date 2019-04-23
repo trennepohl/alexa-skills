@@ -59,16 +59,14 @@ func (d *dockerService) listContainers(alexaRequest *models.AlexaIncomingPayload
 
 	tmpl, err := template.New("response.tmpl").ParseFiles("templates/response.tmpl")
 	if err != nil {
-		panic(err)
+		return alexaResponse, err
 	}
 
 	var response bytes.Buffer
 	err = tmpl.Execute(&response, Containers)
 	if err != nil {
-		panic(err)
+		return alexaResponse, err
 	}
-
-	fmt.Println(response.String())
 
 	alexaResponse.SetSSMLResponse(response.String())
 	return alexaResponse, err
