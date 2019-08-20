@@ -5,9 +5,9 @@ import "time"
 // Changed by best practices https://github.com/golang/go/wiki/CodeReviewComments#mixed-caps
 const dockerFilterOptionName = "name"
 const dockerRestartTimeout = 30
-const ***REMOVED*** = "***REMOVED***"
-const ***REMOVED*** = "***REMOVED***"
-const ***REMOVED*** = "***REMOVED***"
+const dockerRegistryAddr = ""
+const dockerRegistryUsername = ""
+const dockerRegistryPassword = ""
 const dockerDefaultAPIPort = ":2376"
 
 // TLS Files
